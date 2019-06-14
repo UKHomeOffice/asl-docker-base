@@ -4,7 +4,6 @@ RUN addgroup -S app
 RUN adduser -S app -G app -u 999 -h /app/
 RUN chown -R app:app /app/
 
-USER 999
 WORKDIR /app
 
 CMD sh
