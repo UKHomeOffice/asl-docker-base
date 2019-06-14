@@ -1,0 +1,29 @@
+pipeline:
+
+  build:
+    image: docker:17.12.0
+    environment:
+      - DOCKER_HOST=tcp://172.17.0.1:2375
+    commands:
+      - docker build -t asl-base .
+    when:
+      branch: master
+      event:
+        - push
+        - tag
+
+  image_to_quay:
+    image: docker:17.12.0
+    secrets:
+      - docker_password
+    environment:
+      - DOCKER_HOST=tcp://172.17.0.1:2375
+      - DOCKER_IMAGE=asl-bae
+      - DOCKER_REPO=quay.io
+      - DOCKER_BASEDIR=/ukhomeofficedigital/
+      - DOCKER_USERNAME=ukhomeofficedigital+asl
+    commands:
+      - docker login -u="$${DOCKER_USERNAME}" -p="$${DOCKER_PASSWORD}" "$${DOCKER_REPO}"
+      - ./publish.sh "ngx" "$${DOCKER_REPO}$${DOCKER_BASEDIR}$${DOCKER_IMAGE}" "$${DRONE_TAG}"
+    when:
+      event: tag

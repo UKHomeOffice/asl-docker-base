@@ -1,0 +1,20 @@
+{
+  "name": "asl-docker-base",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UKHomeOffice/asl-docker-base.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UKHomeOffice/asl-docker-base/issues"
+  },
+  "homepage": "https://github.com/UKHomeOffice/asl-docker-base#readme"
+}
