@@ -4,8 +4,9 @@ pipeline:
     image: docker:17.12.0
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
+      - DOCKER_IMAGE=asl-base
     commands:
-      - docker build -t $${DRONE_TAG} .
+      - docker build -t $${DOCKER_IMAGE} .
     when:
       event: tag
 
@@ -21,6 +22,6 @@ pipeline:
       - DOCKER_USERNAME=ukhomeofficedigital+asl
     commands:
       - docker login -u="$${DOCKER_USERNAME}" -p="$${DOCKER_PASSWORD}" "$${DOCKER_REPO}"
-      - ./publish.sh "ngx" "$${DOCKER_REPO}$${DOCKER_BASEDIR}$${DOCKER_IMAGE}" "$${DRONE_TAG}"
+      - ./publish.sh "$${DOCKER_IMAGE}" "$${DOCKER_REPO}$${DOCKER_BASEDIR}$${DOCKER_IMAGE}" "$${DRONE_TAG}"
     when:
       event: tag
