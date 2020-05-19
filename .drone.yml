@@ -1,27 +1,13 @@
 pipeline:
-
-  build:
-    image: docker:17.12.0
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-      - DOCKER_IMAGE=asl-base
-    commands:
-      - docker build -t $${DOCKER_IMAGE} .
-    when:
-      event: tag
-
-  image_to_quay:
-    image: docker:17.12.0
+  build_push_to_ecr:
+    image: quay.digital.homeoffice.gov.uk/ukhomeofficedigital/ecr:latest
     secrets:
-      - docker_password
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-      - DOCKER_IMAGE=asl-base
-      - DOCKER_REPO=quay.io
-      - DOCKER_BASEDIR=/ukhomeofficedigital/
-      - DOCKER_USERNAME=ukhomeofficedigital+asl
-    commands:
-      - docker login -u="$${DOCKER_USERNAME}" -p="$${DOCKER_PASSWORD}" "$${DOCKER_REPO}"
-      - ./publish.sh "$${DOCKER_IMAGE}" "$${DOCKER_REPO}$${DOCKER_BASEDIR}$${DOCKER_IMAGE}" "$${DRONE_TAG}"
-    when:
-      event: tag
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    enviroment:
+    - DOCKER_HOST=tcp://172.17.0.1:2375
+    - AWS_REGION=eu-west-2
+    repo: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/asl/base
+    privileged: false
+    tags:
+    - ${DRONE_TAG}
