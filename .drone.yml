@@ -1,27 +1,29 @@
-pipeline:
-
-  build:
-    image: docker:17.12.0
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-      - DOCKER_IMAGE=asl-base
+kind: pipeline
+name: default
+type: kubernetes
+steps:
+  - name: docker build
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
     commands:
-      - docker build -t $${DOCKER_IMAGE} .
+      # wait for docker service to be up before running docker build
+      - n=0; while [ "$n" -lt 60 ] && [[ ! $(docker stats --no-stream) ]]; do n=$(( n + 1 )); sleep 1; done
+      - docker build -t asl-base .
+    when:
+      event:
+        - push
+        - tag
+
+  - name: docker push
+    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    commands:
+      - docker login -u="ukhomeofficedigital+asl" -p=$${DOCKER_PASSWORD} quay.io
+      - ./publish.sh asl-base "quay.io/ukhomeoifficedigital/asl-base" "$${DRONE_TAG}"
     when:
       event: tag
 
-  image_to_quay:
-    image: docker:17.12.0
-    secrets:
-      - docker_password
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-      - DOCKER_IMAGE=asl-base
-      - DOCKER_REPO=quay.io
-      - DOCKER_BASEDIR=/ukhomeofficedigital/
-      - DOCKER_USERNAME=ukhomeofficedigital+asl
-    commands:
-      - docker login -u="$${DOCKER_USERNAME}" -p="$${DOCKER_PASSWORD}" "$${DOCKER_REPO}"
-      - ./publish.sh "$${DOCKER_IMAGE}" "$${DOCKER_REPO}$${DOCKER_BASEDIR}$${DOCKER_IMAGE}" "$${DRONE_TAG}"
-    when:
-      event: tag
+services:
+- name: docker
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
