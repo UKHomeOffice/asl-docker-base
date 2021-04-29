@@ -20,7 +20,7 @@ steps:
         from_secret: docker_password
     commands:
       - docker login -u="ukhomeofficedigital+asl" -p=$${DOCKER_PASSWORD} quay.io
-      - ./publish.sh asl-base "quay.io/ukhomeoifficedigital/asl-base" "$${DRONE_TAG}"
+      - ./publish.sh asl-base "quay.io/ukhomeofficedigital/asl-base" "$${DRONE_TAG}"
     when:
       event: tag
 
