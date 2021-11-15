@@ -1,6 +1,6 @@
 {
   "name": "asl-docker-base",
-  "version": "14.0.1",
+  "version": "16.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
