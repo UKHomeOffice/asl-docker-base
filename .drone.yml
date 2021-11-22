@@ -36,8 +36,10 @@ steps:
         from_secret: docker_password
     commands:
       - n=0; while [ "$n" -lt 60 ] && [[ ! $(docker stats --no-stream) ]]; do n=$(( n + 1 )); sleep 1; done
+      - docker run --privileged --rm tonistiigi/binfmt --install all # install qemu support for multi-platforms
       - docker login -u="ukhomeofficedigital+asl" -p=$${DOCKER_PASSWORD} quay.io
       - docker buildx create --use # switch the the buildx driver
+      - docker context ls
       # docker can't load multi-arch manifests in the local image store so we need to build and push to repo in one go
       - docker buildx build . --platform linux/amd64,linux/arm64 -t quay.io/ukhomeofficedigital/asl-base:multiarch --push
     when:
