@@ -37,7 +37,7 @@ steps:
     commands:
       - n=0; while [ "$n" -lt 60 ] && [[ ! $(docker stats --no-stream) ]]; do n=$(( n + 1 )); sleep 1; done
       - docker login -u="ukhomeofficedigital+asl" -p=$${DOCKER_PASSWORD} quay.io
-      - docker buildx build . --platform linux/amd64,linux/arm64 -t asl-base:multiarch .
+      - docker buildx build --platform linux/amd64,linux/arm64 -t asl-base:multiarch .
       - docker tag asl-base:multiarch quay.io/ukhomeofficedigital/asl-base:multiarch
       - docker push quay.io/ukhomeofficedigital/asl-base:multiarch
     when:
