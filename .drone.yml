@@ -1,13 +1,54 @@
 kind: pipeline
 name: default
 type: kubernetes
+
 steps:
+  # we need a dind image with buildx in it, which we can then use to build our multi-arch asl-base image
+  # this should be separated out so it's not running on every build and to avoid confusion, but for this spike
+  # I'll run it here in sequence. Maybe a new asl-dind-buildx repo?
+  # currently this is just creating a tag in the asl-base namespace but we can remove it after the spike
+  - name: make dind-buildx image
+    image: docker:20-dind
+    environment:
+      DOCKER_HOST: tcp://docker:2375
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    commands:
+      # wait for docker service to be up
+      - n=0; while [ "$n" -lt 60 ] && [[ ! $(docker stats --no-stream) ]]; do n=$(( n + 1 )); sleep 1; done
+      - docker login -u="ukhomeofficedigital+asl" -p=$${DOCKER_PASSWORD} quay.io
+      - docker build -t asl-base:dind-buildx ./dind
+      - docker push quay.io/ukhomeofficedigital/asl-base:dind-buildx
+    when:
+      event:
+        - push
+        - tag
+
+  # now our dind-buildx image is available, use it to build our multi-platform asl-base image
+  # tag image as multiarch while we're spiking so that we don't interfere with the existing image
+  # once we know it works we can use the normal tags
+  - name: build & push multi-arch asl-base
+    image: quay.io/ukhomeofficedigital/asl-base:dind-buildx # we just built this in the preceding step
+    environment:
+      DOCKER_HOST: tcp://docker:2375
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    commands:
+      - n=0; while [ "$n" -lt 60 ] && [[ ! $(docker stats --no-stream) ]]; do n=$(( n + 1 )); sleep 1; done
+      - docker login -u="ukhomeofficedigital+asl" -p=$${DOCKER_PASSWORD} quay.io
+      - docker buildx build . --platform linux/amd64,linux/arm64 -t asl-base:multiarch .
+      - docker push quay.io/ukhomeofficedigital/asl-base:multiarch
+    when:
+      event:
+        - push
+        - tag
+
+  # continue with the standard steps as before
   - name: docker build
     image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
     commands:
-      # wait for docker service to be up before running docker build
       - n=0; while [ "$n" -lt 60 ] && [[ ! $(docker stats --no-stream) ]]; do n=$(( n + 1 )); sleep 1; done
-      - docker build -t asl-base ./dind
+      - docker build -t asl-base .
     when:
       event:
         - push
@@ -26,4 +67,6 @@ steps:
 
 services:
 - name: docker
-  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
+  image: docker:20-dind
+  environment:
+    DOCKER_TLS_CERTDIR: ""
