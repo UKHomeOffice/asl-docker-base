@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 RUN apk add shadow --no-cache
 RUN apk upgrade --no-cache
