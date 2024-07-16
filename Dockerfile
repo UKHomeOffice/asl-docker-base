@@ -3,7 +3,6 @@ FROM node:18-alpine
 RUN apk add shadow --no-cache
 RUN apk upgrade --no-cache
 
-RUN usermod -s /sbin/nologin operator
 RUN usermod -s /sbin/nologin node
 
 RUN addgroup -S app
