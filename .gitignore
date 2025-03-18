@@ -1,0 +1,6 @@
+# IDE - IntelliJ IDEA
+.idea/*
+# IDE - Visual Studio Code
+.vscode/*
+
+
