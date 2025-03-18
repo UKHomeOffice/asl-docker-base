@@ -1,7 +1,7 @@
 {
   "name": "asl-docker-base",
-  "version": "19.0.0",
-  "description": "",
+  "version": "22.14.0",
+  "description": "nodeJS image used has base in CI/CD for ASL services",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
