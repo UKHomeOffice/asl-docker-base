@@ -1,6 +1,6 @@
 {
   "name": "asl-docker-base",
-  "version": "22.14.0",
+  "version": "22.23.5",
   "description": "nodeJS image used has base in CI/CD for ASL services",
   "main": "index.js",
   "scripts": {
