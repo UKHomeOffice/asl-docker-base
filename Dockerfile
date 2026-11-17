@@ -1,7 +1,8 @@
-FROM node:22.23.4-alpine
+FROM node:22.23.5-alpine
 
 RUN apk add shadow --no-cache
 RUN apk upgrade --no-cache
+RUN npm install -g npm@11.21.2
 
 RUN usermod -s /sbin/nologin node
 
